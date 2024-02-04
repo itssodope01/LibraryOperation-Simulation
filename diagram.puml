@@ -1,0 +1,133 @@
+@startuml
+
+abstract class LibraryItem {
+  - BOOK_OVERDUE_FEE: double = 0.5
+  - JOURNAL_OVERDUE_FEE: double = 2.0
+  - FILM_OVERDUE_FEE: double = 5.0
+  - title: String
+  - loanDays: int
+  - libraryId: int
+  - onLoan: boolean
+  - subclasses: List<Class<? extends LibraryItem>>
+  + LibraryItem(title: String, libraryId: int)
+  + getTitle(): String
+  + getLibraryId(): int
+  + isOnLoan(): boolean
+  + borrowItem(): void
+  + returnItem(): void
+  + getLoanDays(): int
+  + abstract getMaxLoanDays(): int
+  + daysOverdue(currentDay: int): int
+  + isOverdue(currentDay: int): boolean
+  + computeFine(currentDay: int): double
+}
+
+interface user {
+  + getUsername(): String
+  + canBorrowItem(item: LibraryItem): boolean
+  + borrowItem(item: LibraryItem, currentDay: int): void
+  + returnItem(currentDay: int): LibraryItem
+  + getAccountBalance(currentDay: int): double
+  + getLateRefundPenalties(currentDay: int): double
+  + displayBorrowedItems(): void
+  + displayLateRefundUsers(currentDay: int): void
+  + blockRentalsByPenalty(threshold: double, currentDay: int): boolean
+}
+
+class Book <<final>>{
+  - author: String
+  - genre: String
+  - publisher: String
+  + Book(title: String, libraryId: int, author: String, genre: String, publisher: String)
+  + getMaxLoanDays(): int
+}
+
+class Journal <<final>>{
+  - eISSN: String
+  - publisher: String
+  - latestIssue: String
+  - journalURL: String
+  + Journal(title: String, libraryId: int, eISSN: String, publisher: String, latestIssue: String, journalURL: String)
+  + getMaxLoanDays(): int
+}
+
+class Film <<final>>{
+  - genre: String
+  - director: String
+  - year: int
+  - runtimeMinutes: int
+  - rating: String
+  + Film(title: String, libraryId: int, genre: String, director: String, year: int, runtimeMinutes: int, rating: String)
+  + getMaxLoanDays(): int
+}
+
+abstract class LibraryUser {
+  - username: String
+  - borrowedItems: List<LibraryItem>
+  - subclasses: List<Class<? extends LibraryUser>>
+  + LibraryUser(username: String)
+  + getUsername(): String
+  + abstract canBorrowItem(item: LibraryItem): boolean
+  + borrowItem(item: LibraryItem, currentDay: int): void
+  + returnItem(currentDay: int): LibraryItem
+}
+
+class Student <<final>>{
+  - MAX_BOOKS: int = 3
+  - MAX_JOURNALS: int = 3
+  - MAX_FILMS: int = 1
+  + Student(username: String)
+  + canBorrowItem(item: LibraryItem): boolean
+  + getAccountBalance(currentDay: int): double
+  + getLateRefundPenalties(currentDay: int): double
+  + displayBorrowedItems(): void
+  + displayLateRefundUsers(currentDay: int): void
+  + blockRentalsByPenalty(threshold: double, currentDay: int): boolean
+}
+
+class Faculty <<final>>{
+  + Faculty(username: String)
+  + canBorrowItem(item: LibraryItem): boolean
+}
+
+class Library <<final>>{
+  - libraryItems: List<LibraryItem>
+  - users: List<LibraryUser>
+  - itemsOnLoan: List<LibraryItem>
+  - totalFineCollected: double
+  - currentDay: int
+  - subclasses: List<Class<? extends Library>>
+  + Library(books: List<Book>, films: List<Film>, journals: List<Journal>, users: List<LibraryUser>)
+  + dailyOperation(currentDay: int): void
+  + borrowItem(user: LibraryUser, currentDay: int): void
+  + returnItem(user: LibraryUser, currentDay: int): void
+  + writeTransaction(action: String, user: LibraryUser, item: LibraryItem, currentDay: int): void
+  + simulateLibraryOperation(simulationDays: int): void
+  + showLoans(): void
+  + showStatistics(): void
+  + generateLibraryId(): int
+  + readBooksFromCSV(filePath: String): List<Book>
+  + readFilmsFromCSV(filePath: String): List<Film>
+  + readJournalsFromCSV(filePath: String): List<Journal>
+  + main(args: String[]): void
+}
+
+interface TransactionLogger {
+  + logTransaction(action: String, user: LibraryUser, item: LibraryItem, currentDay: int): void
+}
+
+class PrintWriterTransactionLogger {
+  - filePath: String
+  + PrintWriterTransactionLogger(filePath: String)
+  + logTransaction(action: String, user: LibraryUser, item: LibraryItem, currentDay: int): void
+}
+
+Library --> LibraryItem : has
+LibraryItem <-- Book : extends
+LibraryItem <-- Journal : extends
+LibraryItem <-- Film : extends
+LibraryUser <-- Student : extends
+LibraryUser <-- Faculty : extends
+Library <-- LibraryUser : has
+
+@enduml
