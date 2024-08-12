@@ -302,9 +302,9 @@ public void showStatistics() {
     public static void main(String[] args) {
         System.out.println("Transactions information saved to transactions.txt");
         
-        String booksFilePath = "books.csv";
-        String filmsFilePath = "movies.csv";
-        String journalsFilePath = "jlist.csv";
+        String booksFilePath = "/csv/books.csv";
+        String filmsFilePath = "/csv/movies.csv";
+        String journalsFilePath = "/csv/jlist.csv";
 
         
         List<Book> books = readBooksFromCSV(booksFilePath);
